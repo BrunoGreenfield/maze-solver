@@ -13,13 +13,13 @@ def displayMaze():
         for char in row:
             match char:
                 case '#':
-                    print("\033[31m#\033[0m", end=' ')
+                    print("\033[31m#\033[0m", end=' ') # '#'
                 case '0':
-                    print("\033[32m0\033[0m", end=' ')
+                    print("\033[32m0\033[0m", end=' ') # '0'
                 case 'A':
-                    print("\033[33mA\033[0m", end=' ')
+                    print("\033[33mA\033[0m", end=' ') # 'A'
                 case 'Z':
-                    print("\033[34mZ\033[0m", end=' ')
+                    print("\033[34mZ\033[0m", end=' ') # 'Z'
         print() # Create a new line after every row
 
 def currentPos():
