@@ -52,7 +52,7 @@ def heuristic(givenSquare):
 # Opening the maze creating a lists of lists to represent
 with open(mazeName, "r") as mazeFile:
     maze = [list(row.strip()) for row in mazeFile]
-goalPos = getGoalPos()
+goalPos = getGoalPos() # Must be run instantly as the maze will change as the game is played
 
 displayMaze()
 print('Goal Position:', goalPos)
