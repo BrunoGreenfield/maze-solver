@@ -12,13 +12,14 @@ class Player:
     def __init__(self):
         self.squareCosts = []
         self.frontier = []
+        self.goodChars = ['0', 'Z'] # This is a list of characters the player can move too
 
     def currentPos(self):
         playerIndex = ''
         for row in maze:
             if 'A' not in row:
                 continue
-            playerIndex = str(maze.index(row)) + str(row.index('A'))
+            playerIndex = [maze.index(row), row.index('A')]
 
         return playerIndex
     
@@ -32,6 +33,20 @@ class Player:
         x1, y1 = map(int, givenSquare)
         x2, y2 = map(int, goalPos)
         return abs(x2-x1) + abs(y2-y1)
+    
+    def getAvailableSquares(self):
+        current_row, current_col = self.currentPos()
+        directions = [[1, 0], [-1, 0], [0, 1], [0, -1]]
+        goodSquares = []
+
+        for row, column in directions:
+            newRow, newCol = current_row + row, current_col + column
+
+            if 0 <= newRow < len(maze) and 0 <= newCol < len(maze[newRow]):
+                if maze[newRow][newCol] in self.goodChars:
+                    goodSquares.append([newRow, newCol])
+
+        return goodSquares
 
     def chooseRandom(self):
         pass
@@ -70,7 +85,7 @@ def getGoalPos():
     for row in maze:
         if 'Z' not in row:
             continue
-        return str(maze.index(row)) + str(row.index('Z'))
+        return [maze.index(row), row.index('Z')]
 
 
 # Opening the maze creating a lists of lists to represent
@@ -84,14 +99,19 @@ displayMaze()
 print('Goal Position:', goalPos)
 print('Current Position:', player.currentPos())
 print('Heuristic:', player.heuristic(player.currentPos()))
+print('Goal State:', player.checkGoalState())
+print('Squares to move too:', player.getAvailableSquares())
 maze[3][2] = 'A'
 maze[5][0] = '0'
 displayMaze()
 print('Current Position:', player.currentPos())
 print('Heuristic:', player.heuristic(player.currentPos()))
+print('Goal State:', player.checkGoalState())
+print('Squares to move too:', player.getAvailableSquares())
 maze[3][2] = '0'
 maze[0][5] = 'A'
 displayMaze()
 print('Current Position:', player.currentPos())
 print('Heuristic:', player.heuristic(player.currentPos()))
 print('Goal State:', player.checkGoalState())
+print('Squares to move too:', player.getAvailableSquares())
