@@ -1,8 +1,9 @@
 import argparse
+from random import choice
 
 # Mazename flag
 parser = argparse.ArgumentParser()
-parser.add_argument("-n", "--mazename", required=True)
+parser.add_argument("-n", "--mazename", help='The path to the maze txt file', required=True)
 args = parser.parse_args()
 mazeName = args.mazename
 
@@ -10,6 +11,7 @@ mazeName = args.mazename
 class Player:
     def __init__(self):
         self.squareCosts = []
+        self.frontier = []
 
     def currentPos(self):
         playerIndex = ''
@@ -30,6 +32,23 @@ class Player:
         x1, y1 = map(int, givenSquare)
         x2, y2 = map(int, goalPos)
         return abs(x2-x1) + abs(y2-y1)
+
+    def chooseRandom(self):
+        pass
+
+class BFS(Player):
+    def __init__(self):
+        super().__init__()
+
+    def play(self):
+        print(self.frontier)
+
+class DFS(Player):
+    def __init__(self):
+        super().__init__()
+    
+    def play(self):
+        pass
 
 
 def displayMaze():
@@ -56,10 +75,10 @@ def getGoalPos():
 
 # Opening the maze creating a lists of lists to represent
 with open(mazeName, "r") as mazeFile:
-    maze = [list(row.strip()) for row in mazeFile]
+    maze = [list(row.strip()) for row in mazeFile if '#' in row]
 goalPos = getGoalPos() # Must be run instantly as the maze will change as the game is played
 
-player = Player()
+player = BFS()
 
 displayMaze()
 print('Goal Position:', goalPos)
