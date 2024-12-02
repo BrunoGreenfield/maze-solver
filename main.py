@@ -13,6 +13,7 @@ class Player:
         self.squareCosts = []
         self.frontier = []
         self.goodChars = ['0', 'Z'] # This is a list of characters the player can move too
+        movesMade = 0
 
     def currentPos(self):
         playerIndex = ''
@@ -33,6 +34,9 @@ class Player:
         x1, y1 = map(int, givenSquare)
         x2, y2 = map(int, goalPos)
         return abs(x2-x1) + abs(y2-y1)
+
+    def squareCost(self, givenSquare, movesToSquare):
+        return self.heuristic(givenSquare)+movesToSquare
     
     def getAvailableSquares(self):
         current_row, current_col = self.currentPos()
