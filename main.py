@@ -52,21 +52,27 @@ class Player:
 
         return goodSquares
 
-    def chooseRandom(self):
-        return choice(self.frontier)
-
 class BFS(Player):
     def __init__(self):
         super().__init__()
 
     def play(self):
-        print(self.frontier)
+        for square in self.getAvailableSquares():
+            self.frontier.append(square)
+
+        nextSquare = self.frontier[0]
+        self.frontier.remove(nextSquare)
+
 
 class DFS(Player):
     def __init__(self):
         super().__init__()
     
     def play(self):
+        pass
+
+class A_Star(Player):
+    def __init__(self):
         pass
 
 
@@ -112,7 +118,7 @@ print('Current Position:', player.currentPos())
 print('Heuristic:', player.heuristic(player.currentPos()))
 print('Goal State:', player.checkGoalState())
 print('Squares to move too:', player.getAvailableSquares())
-print('Random Choice:', player.chooseRandom())
+player.play()
 maze[3][2] = '0'
 maze[0][5] = 'A'
 displayMaze()
