@@ -1,5 +1,6 @@
 import argparse
-from random import choice
+from time import sleep
+import os
 
 # Mazename flag
 parser = argparse.ArgumentParser()
@@ -13,7 +14,8 @@ class Player:
         self.squareCosts = []
         self.frontier = []
         self.goodChars = ['0', 'Z'] # This is a list of characters the player can move too
-        movesMade = 0
+        self.currentSquare = self.currentPos()
+        self.exploredSquares = [] # format => [[squareCoords: movesToThere]] # CURRENTLY USING HEURISTIC NEEDS CHANGING
 
     def currentPos(self):
         playerIndex = ''
@@ -23,12 +25,12 @@ class Player:
             playerIndex = [maze.index(row), row.index('A')]
 
         return playerIndex
-    
+
     def checkGoalState(self):
         if self.currentPos() == goalPos:
             return True
         return False
-    
+
     # Calculates the estimated closeness of any given square, ignoring hedges (obviously)
     def heuristic(self, givenSquare):
         x1, y1 = map(int, givenSquare)
@@ -37,7 +39,7 @@ class Player:
 
     def squareCost(self, givenSquare, movesToSquare):
         return self.heuristic(givenSquare)+movesToSquare
-    
+
     def getAvailableSquares(self):
         current_row, current_col = self.currentPos()
         directions = [[1, 0], [-1, 0], [0, 1], [0, -1]]
@@ -55,19 +57,29 @@ class Player:
 class BFS(Player):
     def __init__(self):
         super().__init__()
+        self.exploredSquares.append([self.currentSquare, [self.heuristic(self.currentSquare)]])
 
-    def play(self):
+    def move(self):
         for square in self.getAvailableSquares():
-            self.frontier.append(square)
+            if square not in self.exploredSquares[:][0] and square not in self.frontier:
+                self.frontier.append(square)
 
-        nextSquare = self.frontier[0]
-        self.frontier.remove(nextSquare)
+        maze[self.currentSquare[0]][self.currentSquare[1]] = '0'
 
+        self.currentSquare = self.frontier[0]
+        self.frontier.remove(self.currentSquare)
+        maze[self.currentSquare[0]][self.currentSquare[1]] = 'A'
+
+        self.exploredSquares.append([self.currentSquare, [self.heuristic(self.currentSquare)]])
+
+        if self.checkGoalState():
+            return True
+        return False
 
 class DFS(Player):
     def __init__(self):
         super().__init__()
-    
+
     def play(self):
         pass
 
@@ -76,8 +88,7 @@ class A_Star(Player):
         pass
 
 
-def displayMaze():
-    print()
+def displayMaze(player):
     for row in maze:
         for char in row:
             match char:
@@ -91,11 +102,24 @@ def displayMaze():
                     print("\033[34mZ\033[0m", end=' ') # 'Z'
         print() # Create a new line after every row
 
+    print('\nGoal Position:', goalPos)
+    print('Current Position:', player.currentPos())
+    print('Heuristic:', player.heuristic(player.currentPos()))
+    print('Goal State:', player.checkGoalState())
+    print('Squares to move too:', player.getAvailableSquares())
+
+    print('\nExplored Squares: ')
+    for value, key in player.exploredSquares[:][0], player.exploredSquares[:][1]:
+        print(f'  - Square: {value}, Heuristic: {key}')
+
 def getGoalPos():
     for row in maze:
         if 'Z' not in row:
             continue
         return [maze.index(row), row.index('Z')]
+
+def clearScreen():
+    os.system('cls' if os.name == 'nt' else 'clear')
 
 
 # Opening the maze creating a lists of lists to represent
@@ -103,26 +127,16 @@ with open(mazeName, "r") as mazeFile:
     maze = [list(row.strip()) for row in mazeFile if '#' in row]
 goalPos = getGoalPos() # Must be run instantly as the maze will change as the game is played
 
-player = BFS()
+clearScreen()
+playerBFS = BFS()
+displayMaze(playerBFS)
 
-displayMaze()
-print('Goal Position:', goalPos)
-print('Current Position:', player.currentPos())
-print('Heuristic:', player.heuristic(player.currentPos()))
-print('Goal State:', player.checkGoalState())
-print('Squares to move too:', player.getAvailableSquares())
-maze[3][2] = 'A'
-maze[5][0] = '0'
-displayMaze()
-print('Current Position:', player.currentPos())
-print('Heuristic:', player.heuristic(player.currentPos()))
-print('Goal State:', player.checkGoalState())
-print('Squares to move too:', player.getAvailableSquares())
-player.play()
-maze[3][2] = '0'
-maze[0][5] = 'A'
-displayMaze()
-print('Current Position:', player.currentPos())
-print('Heuristic:', player.heuristic(player.currentPos()))
-print('Goal State:', player.checkGoalState())
-print('Squares to move too:', player.getAvailableSquares())
+while True:
+    sleep(1)
+    clearScreen()
+
+    goalState = playerBFS.move()
+    displayMaze(playerBFS)
+
+    if goalState:
+        break
