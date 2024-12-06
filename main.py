@@ -15,7 +15,7 @@ class Player:
         self.frontier = []
         self.goodChars = ['0', 'Z'] # This is a list of characters the player can move too
         self.currentSquare = self.currentPos()
-        self.exploredSquares = [] # format => [[squareCoords: movesToThere]] # CURRENTLY USING HEURISTIC NEEDS CHANGING
+        self.exploredSquares = [] # format => [squareCoords], with each index being the moves it took to get to the desired square
 
     def currentPos(self):
         playerIndex = ''
@@ -57,12 +57,13 @@ class Player:
 class BFS(Player):
     def __init__(self):
         super().__init__()
-        self.exploredSquares.append([self.currentSquare, [self.heuristic(self.currentSquare)]])
+        self.exploredSquares.append([self.currentSquare])
 
     def move(self):
         for square in self.getAvailableSquares():
-            if square not in self.exploredSquares[:][0] and square not in self.frontier:
+            if not any(square in inner_list for inner_list in self.exploredSquares) and square not in self.frontier:
                 self.frontier.append(square)
+                # perhaps we can add explored squares here too.
 
         maze[self.currentSquare[0]][self.currentSquare[1]] = '0'
 
@@ -70,7 +71,7 @@ class BFS(Player):
         self.frontier.remove(self.currentSquare)
         maze[self.currentSquare[0]][self.currentSquare[1]] = 'A'
 
-        self.exploredSquares.append([self.currentSquare, [self.heuristic(self.currentSquare)]])
+        self.exploredSquares.append([self.currentSquare])
 
         if self.checkGoalState():
             return True
@@ -109,8 +110,8 @@ def displayMaze(player):
     print('Squares to move too:', player.getAvailableSquares())
 
     print('\nExplored Squares: ')
-    for value, key in player.exploredSquares[:][0], player.exploredSquares[:][1]:
-        print(f'  - Square: {value}, Heuristic: {key}')
+    for square in player.exploredSquares:
+        print(f'  - Square: {square}, Heuristic:')
 
 def getGoalPos():
     for row in maze:
