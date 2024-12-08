@@ -15,7 +15,10 @@ class Player:
         self.frontier = []
         self.goodChars = ['0', 'Z'] # This is a list of characters the player can move too
         self.currentSquare = self.currentPos()
-        self.exploredSquares = [] # format => [squareCoords], with each index being the moves it took to get to the desired square
+        self.exploredSquares = []
+        self.knownSquares = [[]] # format => [squareCoords], with each index being the moves it took to get to the desired square
+        self.exploredSquares.append(self.currentSquare)
+        self.knownSquares[0].append([self.currentSquare])
 
     def currentPos(self):
         playerIndex = ''
@@ -54,24 +57,30 @@ class Player:
 
         return goodSquares
 
+    def addKnownSquare(self, square):
+        moves = next((i for i, innerList in enumerate(self.exploredSquares) if square in innerList), -1) + 1
+        if len(self.knownSquares) < moves:
+            self.knownSquares.append([])
+
+        self.knownSquares[moves].append(square)
+
 class BFS(Player):
     def __init__(self):
         super().__init__()
-        self.exploredSquares.append([self.currentSquare])
 
     def move(self):
         for square in self.getAvailableSquares():
-            if not any(square in inner_list for inner_list in self.exploredSquares) and square not in self.frontier:
+            if square not in self.exploredSquares and square not in self.frontier:
                 self.frontier.append(square)
-                # perhaps we can add explored squares here too.
-
+                self.addKnownSquare(square)
+ 
         maze[self.currentSquare[0]][self.currentSquare[1]] = '0'
 
         self.currentSquare = self.frontier[0]
         self.frontier.remove(self.currentSquare)
         maze[self.currentSquare[0]][self.currentSquare[1]] = 'A'
 
-        self.exploredSquares.append([self.currentSquare])
+        self.exploredSquares.append(self.currentSquare)
 
         if self.checkGoalState():
             return True
@@ -86,6 +95,7 @@ class DFS(Player):
 
 class A_Star(Player):
     def __init__(self):
+        super().__init__()
         pass
 
 
@@ -110,8 +120,10 @@ def displayMaze(player):
     print('Squares to move too:', player.getAvailableSquares())
 
     print('\nExplored Squares: ')
-    for square in player.exploredSquares:
-        print(f'  - Square: {square}, Heuristic:')
+    # for square in player.exploredSquares:
+    #     print(f'  - Square: {square}')
+
+    print(player.knownSquares)
 
 def getGoalPos():
     for row in maze:
@@ -133,11 +145,12 @@ playerBFS = BFS()
 displayMaze(playerBFS)
 
 while True:
-    sleep(1)
+    sleep(2)
     clearScreen()
 
     goalState = playerBFS.move()
     displayMaze(playerBFS)
 
     if goalState:
+        print()
         break
