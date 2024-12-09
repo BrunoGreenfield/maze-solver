@@ -18,7 +18,7 @@ class Player:
         self.exploredSquares = []
         self.knownSquares = [[]] # format => [squareCoords], with each index being the moves it took to get to the desired square
         self.exploredSquares.append(self.currentSquare)
-        self.knownSquares[0].append([self.currentSquare])
+        self.knownSquares[0].append(self.currentSquare)
 
     def currentPos(self):
         playerIndex = ''
@@ -58,8 +58,16 @@ class Player:
         return goodSquares
 
     def addKnownSquare(self, square):
-        moves = next((i for i, innerList in enumerate(self.exploredSquares) if square in innerList), -1) + 1
-        if len(self.knownSquares) < moves:
+        moves = 0
+        for avaSquare in self.getAvailableSquares():
+            count = 0
+            for i in self.knownSquares:
+                if avaSquare in i:
+                    moves = count + 1
+                    break
+                count += 1
+        
+        if len(self.knownSquares) <= moves:
             self.knownSquares.append([])
 
         self.knownSquares[moves].append(square)
@@ -96,7 +104,6 @@ class DFS(Player):
 class A_Star(Player):
     def __init__(self):
         super().__init__()
-        pass
 
 
 def displayMaze(player):
