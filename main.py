@@ -72,11 +72,7 @@ class Player:
 
         self.knownSquares[moves].append(square)
 
-class BFS(Player):
-    def __init__(self):
-        super().__init__()
-
-    def move(self):
+    def addToFrontier(self):
         for square in self.getAvailableSquares(self.currentPos()):
             if square not in self.exploredSquares and square not in self.frontier:
                 self.frontier.append(square)
@@ -84,12 +80,21 @@ class BFS(Player):
 
         maze[self.currentSquare[0]][self.currentSquare[1]] = '0'
 
-        self.currentSquare = self.frontier[0]
+    def cleanUp(self):
         self.frontier.remove(self.currentSquare)
         maze[self.currentSquare[0]][self.currentSquare[1]] = 'A'
 
         self.exploredSquares.append(self.currentSquare)
 
+class BFS(Player):
+    def __init__(self):
+        super().__init__()
+
+    def move(self):
+        self.addToFrontier()
+        self.currentSquare = self.frontier[0]
+
+        self.cleanUp()
         return self.checkGoalState()
 
 class DFS(Player):
