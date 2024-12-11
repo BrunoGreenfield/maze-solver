@@ -101,8 +101,12 @@ class DFS(Player):
     def __init__(self):
         super().__init__()
 
-    def play(self):
-        pass
+    def move(self):
+        self.addToFrontier()
+        self.currentSquare = self.frontier[-1]
+
+        self.cleanUp()
+        return self.checkGoalState()
 
 class A_Star(Player):
     def __init__(self):
@@ -130,10 +134,8 @@ def displayMaze(player):
     print('Squares to move too:', player.getAvailableSquares(player.currentPos()))
 
     print('\nExplored Squares: ')
-    # for square in player.exploredSquares:
-    #     print(f'  - Square: {square}')
-
-    print(player.knownSquares)
+    for square in player.exploredSquares:
+        print(f'  - Square: {square}')
 
 def getGoalPos():
     for row in maze:
@@ -151,15 +153,21 @@ with open(mazeName, "r") as mazeFile:
 goalPos = getGoalPos() # Must be run instantly as the maze will change as the game is played
 
 clearScreen()
-playerBFS = BFS()
-displayMaze(playerBFS)
+# playerBFS = BFS()
+# displayMaze(playerBFS)
+
+playerDFS = DFS()
+displayMaze(playerDFS)
 
 while True:
-    sleep(2)
+    sleep(1)
     clearScreen()
 
-    goalState = playerBFS.move()
-    displayMaze(playerBFS)
+    # goalState = playerBFS.move()
+    # displayMaze(playerBFS)
+
+    goalState = playerDFS.move()
+    displayMaze(playerDFS)
 
     if goalState:
         print()
