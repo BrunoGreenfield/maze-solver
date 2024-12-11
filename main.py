@@ -43,8 +43,8 @@ class Player:
     def squareCost(self, givenSquare, movesToSquare):
         return self.heuristic(givenSquare)+movesToSquare
 
-    def getAvailableSquares(self):
-        current_row, current_col = self.currentPos()
+    def getAvailableSquares(self, square):
+        current_row, current_col = square
         directions = [[1, 0], [-1, 0], [0, 1], [0, -1]]
         goodSquares = []
 
@@ -59,13 +59,13 @@ class Player:
 
     def addKnownSquare(self, square):
         moves = 0
-        for avaSquare in self.getAvailableSquares():
+        for avaSquare in self.getAvailableSquares(square):
             count = 0
             for i in self.knownSquares:
-                if avaSquare in i:
-                    moves = count + 1
-                    break
                 count += 1
+                if avaSquare in i:
+                    moves = count
+                    break
         
         if len(self.knownSquares) <= moves:
             self.knownSquares.append([])
@@ -77,7 +77,7 @@ class BFS(Player):
         super().__init__()
 
     def move(self):
-        for square in self.getAvailableSquares():
+        for square in self.getAvailableSquares(self.currentPos()):
             if square not in self.exploredSquares and square not in self.frontier:
                 self.frontier.append(square)
                 self.addKnownSquare(square)
@@ -90,9 +90,7 @@ class BFS(Player):
 
         self.exploredSquares.append(self.currentSquare)
 
-        if self.checkGoalState():
-            return True
-        return False
+        return self.checkGoalState()
 
 class DFS(Player):
     def __init__(self):
@@ -124,7 +122,7 @@ def displayMaze(player):
     print('Current Position:', player.currentPos())
     print('Heuristic:', player.heuristic(player.currentPos()))
     print('Goal State:', player.checkGoalState())
-    print('Squares to move too:', player.getAvailableSquares())
+    print('Squares to move too:', player.getAvailableSquares(player.currentPos()))
 
     print('\nExplored Squares: ')
     # for square in player.exploredSquares:
