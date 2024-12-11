@@ -13,7 +13,7 @@ class Player:
     def __init__(self):
         self.squareCosts = []
         self.frontier = []
-        self.goodChars = ['0', 'Z'] # This is a list of characters the player can move too
+        self.goodChars = ['0', 'Z', 'A'] # This is a list of characters the player can move too
         self.currentSquare = self.currentPos()
         self.exploredSquares = []
         self.knownSquares = [[]] # format => [squareCoords], with each index being the moves it took to get to the desired square
@@ -66,7 +66,7 @@ class Player:
                 if avaSquare in i:
                     moves = count
                     break
-        
+
         if len(self.knownSquares) <= moves:
             self.knownSquares.append([])
 
@@ -81,7 +81,7 @@ class BFS(Player):
             if square not in self.exploredSquares and square not in self.frontier:
                 self.frontier.append(square)
                 self.addKnownSquare(square)
- 
+
         maze[self.currentSquare[0]][self.currentSquare[1]] = '0'
 
         self.currentSquare = self.frontier[0]
