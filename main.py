@@ -40,7 +40,14 @@ class Player:
         x2, y2 = map(int, goalPos)
         return abs(x2-x1) + abs(y2-y1)
 
-    def squareCost(self, givenSquare, movesToSquare):
+    def squareCost(self, givenSquare):
+        moves = 0
+        for squares in self.knownSquares:
+            if givenSquare in squares:
+                movesToSquare = moves
+                break
+            moves += 1
+
         return self.heuristic(givenSquare)+movesToSquare
 
     def getAvailableSquares(self, square):
@@ -112,6 +119,22 @@ class A_Star(Player):
     def __init__(self):
         super().__init__()
 
+    def move(self):
+        self.addToFrontier()
+
+        bestSquare = []
+        lowestSquareCost = 1_000_000
+        for square in self.frontier:
+            print(square, self.squareCost(square))
+            if self.squareCost(square) < lowestSquareCost:
+                bestSquare = square
+                lowestSquareCost = self.squareCost(square)
+
+        self.currentSquare = bestSquare
+
+        self.cleanUp()
+        return self.checkGoalState()
+
 
 def displayMaze(player):
     for row in maze:
@@ -152,12 +175,16 @@ with open(mazeName, "r") as mazeFile:
     maze = [list(row.strip()) for row in mazeFile if '#' in row]
 goalPos = getGoalPos() # Must be run instantly as the maze will change as the game is played
 
+
 clearScreen()
 # playerBFS = BFS()
 # displayMaze(playerBFS)
 
-playerDFS = DFS()
-displayMaze(playerDFS)
+# playerDFS = DFS()
+# displayMaze(playerDFS)
+
+aStar = A_Star()
+displayMaze(aStar)
 
 while True:
     sleep(1)
@@ -166,8 +193,13 @@ while True:
     # goalState = playerBFS.move()
     # displayMaze(playerBFS)
 
-    goalState = playerDFS.move()
-    displayMaze(playerDFS)
+    # goalState = playerDFS.move()
+    # displayMaze(playerDFS)
+
+    goalState = aStar.move()
+    displayMaze(aStar)
+
+
 
     if goalState:
         print()
