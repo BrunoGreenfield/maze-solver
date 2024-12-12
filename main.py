@@ -214,7 +214,7 @@ match algorithm.lower():
         displayMaze(player)
     case 'gbfs':
         player = GBFS()
-        displayMaze(GBFS)
+        displayMaze(player)
     case 'a*':
         player = A_Star()
         displayMaze(player)
