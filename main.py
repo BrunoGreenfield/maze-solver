@@ -168,7 +168,7 @@ class A_Star(Player):
 
 
 def displayMaze(player):
-    print()
+    clearScreen()
     for row in maze:
         for char in row:
             match char:
@@ -200,11 +200,9 @@ def clearScreen():
 
 # Opening the maze creating a lists of lists to represent
 with open(MAZE_NAME, "r") as mazeFile:
-    maze = [list(row.strip()) for row in mazeFile if '#' in row]
+    maze = [list(row.strip()) for row in mazeFile if '0' in row or '#' in row]
 goalPos = getGoalPos() # Must be run instantly as the maze will change as the game is played
 
-
-clearScreen()
 
 match ALGORITHM.lower():
     case 'bfs':
@@ -222,7 +220,6 @@ match ALGORITHM.lower():
 
 while True:
     sleep(timeDelay)
-    clearScreen()
 
     goalState = player.move()
     displayMaze(player)
