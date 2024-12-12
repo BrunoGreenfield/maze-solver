@@ -9,7 +9,7 @@ timeDelay = 1
 parser = argparse.ArgumentParser()
 parser.add_argument('-n', '--mazename', help='The path to the maze txt file', required=True)
 parser.add_argument('-a', '--algorithm', help='The search algorithm you wish to use: bfs, dfs, gbfs, a*', required=True)
-parser.add_argument('-d', '--delay', help='Time delay per-move (default 1)')
+parser.add_argument('-d', '--delay', help='Time delay per-move in seconds (default 1)')
 
 args = parser.parse_args()
 
@@ -96,7 +96,11 @@ class Player:
                 self.frontier.append(square)
                 self.addKnownSquare(square)
 
+        # if not self.frontier:
+        #     return True
+
         maze[self.currentSquare[0]][self.currentSquare[1]] = '0'
+        return False
 
     def cleanUp(self):
         self.frontier.remove(self.currentSquare)
@@ -104,34 +108,37 @@ class Player:
 
         self.exploredSquares.append(self.currentSquare)
 
+# Breadth-first search
 class BFS(Player):
     def __init__(self):
         super().__init__()
 
     def move(self):
-        self.addToFrontier()
+        if self.addToFrontier(): return True
         self.currentSquare = self.frontier[0]
 
         self.cleanUp()
         return self.checkGoalState()
 
+# Depth-first search
 class DFS(Player):
     def __init__(self):
         super().__init__()
 
     def move(self):
-        self.addToFrontier()
+        if self.addToFrontier(): return True
         self.currentSquare = self.frontier[-1]
 
         self.cleanUp()
         return self.checkGoalState()
 
+# Greedy best-first search (follows heuristic only)
 class GBFS(Player):
     def __init__(self):
         super().__init__()
 
     def move(self):
-        self.addToFrontier()
+        if self.addToFrontier(): return True
 
         bestSquare = []
         lowestSquareCost = 1_000_000_000
@@ -151,7 +158,7 @@ class A_Star(Player):
         super().__init__()
 
     def move(self):
-        self.addToFrontier()
+        if self.addToFrontier(): return True
 
         bestSquare = []
         lowestSquareCost = 1_000_000_000
@@ -235,5 +242,6 @@ while True:
 
     if goalState:
         print(f'\nExploration Efficiency: {len(player.exploredSquares)-1}/{totalAvaSquares} ({round(((len(player.exploredSquares)-1)/totalAvaSquares*100), 1)}%)')
-        print()
         break
+
+print()
