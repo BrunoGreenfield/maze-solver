@@ -1,6 +1,7 @@
 import argparse
-from time import sleep
 import os
+from time import sleep
+from random import shuffle
 
 # Mazename flag
 parser = argparse.ArgumentParser()
@@ -80,7 +81,9 @@ class Player:
         self.knownSquares[moves].append(square)
 
     def addToFrontier(self):
-        for square in self.getAvailableSquares(self.currentPos()):
+        avaSquares = self.getAvailableSquares(self.currentPos())
+        shuffle(avaSquares)
+        for square in avaSquares:
             if square not in self.exploredSquares and square not in self.frontier:
                 self.frontier.append(square)
                 self.addKnownSquare(square)
@@ -115,6 +118,26 @@ class DFS(Player):
         self.cleanUp()
         return self.checkGoalState()
 
+class GBFS(Player):
+    def __init__(self):
+        super().__init__()
+
+    def move(self):
+        self.addToFrontier()
+
+        bestSquare = []
+        lowestSquareCost = 1_000_000_000
+        for square in self.frontier:
+            cost = self.heuristic(square)
+            if cost <= lowestSquareCost:
+                bestSquare = square
+                lowestSquareCost = cost
+
+        self.currentSquare = bestSquare
+
+        self.cleanUp()
+        return self.checkGoalState()
+
 class A_Star(Player):
     def __init__(self):
         super().__init__()
@@ -123,12 +146,12 @@ class A_Star(Player):
         self.addToFrontier()
 
         bestSquare = []
-        lowestSquareCost = 1_000_000
+        lowestSquareCost = 1_000_000_000
         for square in self.frontier:
-            print(square, self.squareCost(square))
-            if self.squareCost(square) < lowestSquareCost:
+            cost = self.squareCost(square)
+            if cost <= lowestSquareCost:
                 bestSquare = square
-                lowestSquareCost = self.squareCost(square)
+                lowestSquareCost = cost
 
         self.currentSquare = bestSquare
 
