@@ -12,8 +12,9 @@ parser.add_argument('-a', '--algorithm', help='The search algorithm you wish to 
 parser.add_argument('-d', '--delay', help='Time delay per-move (default 1)')
 
 args = parser.parse_args()
-mazeName = args.mazename
-algorithm = args.algorithm
+
+MAZE_NAME = args.mazename
+ALGORITHM = args.algorithm
 if args.delay != None: timeDelay = float(args.delay)
 
 
@@ -198,14 +199,14 @@ def clearScreen():
 
 
 # Opening the maze creating a lists of lists to represent
-with open(mazeName, "r") as mazeFile:
+with open(MAZE_NAME, "r") as mazeFile:
     maze = [list(row.strip()) for row in mazeFile if '#' in row]
 goalPos = getGoalPos() # Must be run instantly as the maze will change as the game is played
 
 
 clearScreen()
 
-match algorithm.lower():
+match ALGORITHM.lower():
     case 'bfs':
         player = BFS()
         displayMaze(player)
