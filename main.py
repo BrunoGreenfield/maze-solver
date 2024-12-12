@@ -3,11 +3,18 @@ import os
 from time import sleep
 from random import shuffle
 
+timeDelay = 1
+
 # Mazename flag
 parser = argparse.ArgumentParser()
-parser.add_argument("-n", "--mazename", help='The path to the maze txt file', required=True)
+parser.add_argument('-n', '--mazename', help='The path to the maze txt file', required=True)
+parser.add_argument('-a', '--algorithm', help='The search algorithm you wish to use: bfs, dfs, gbfs, a*', required=True)
+parser.add_argument('-d', '--delay', help='Time delay per-move (default 1)')
+
 args = parser.parse_args()
 mazeName = args.mazename
+algorithm = args.algorithm
+if args.delay != None: timeDelay = float(args.delay)
 
 
 class Player:
@@ -160,6 +167,7 @@ class A_Star(Player):
 
 
 def displayMaze(player):
+    print()
     for row in maze:
         for char in row:
             match char:
@@ -179,10 +187,6 @@ def displayMaze(player):
     print('Goal State:', player.checkGoalState())
     print('Squares to move too:', player.getAvailableSquares(player.currentPos()))
 
-    print('\nExplored Squares: ')
-    for square in player.exploredSquares:
-        print(f'  - Square: {square}')
-
 def getGoalPos():
     for row in maze:
         if 'Z' not in row:
@@ -200,29 +204,27 @@ goalPos = getGoalPos() # Must be run instantly as the maze will change as the ga
 
 
 clearScreen()
-# playerBFS = BFS()
-# displayMaze(playerBFS)
 
-# playerDFS = DFS()
-# displayMaze(playerDFS)
-
-aStar = A_Star()
-displayMaze(aStar)
+match algorithm.lower():
+    case 'bfs':
+        player = BFS()
+        displayMaze(player)
+    case 'dfs':
+        player = DFS()
+        displayMaze(player)
+    case 'gbfs':
+        player = GBFS()
+        displayMaze(GBFS)
+    case 'a*':
+        player = A_Star()
+        displayMaze(player)
 
 while True:
-    sleep(1)
+    sleep(timeDelay)
     clearScreen()
 
-    # goalState = playerBFS.move()
-    # displayMaze(playerBFS)
-
-    # goalState = playerDFS.move()
-    # displayMaze(playerDFS)
-
-    goalState = aStar.move()
-    displayMaze(aStar)
-
-
+    goalState = player.move()
+    displayMaze(player)
 
     if goalState:
         print()
