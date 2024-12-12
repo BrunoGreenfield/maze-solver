@@ -1,0 +1,13 @@
+00###Z##00
+#0#0#0##0#
+#0#0#0##0#
+#000#0##0#
+#0#0000#0#
+#0####0#00
+#0####0##0
+#0####0##0
+#000000000
+#####A####
+
+This maze has two solutions, with one being more optimal than the other
+ - A* should perform almost perfectly
