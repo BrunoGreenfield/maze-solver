@@ -194,6 +194,14 @@ def getGoalPos():
             continue
         return [maze.index(row), row.index('Z')]
 
+def getTotalAvaSquares():
+    totalAvaSquares = 0
+    for row in maze:
+        for char in row:
+            if char == '0' or char == 'Z':
+                totalAvaSquares += 1
+    return totalAvaSquares
+
 def clearScreen():
     os.system('cls' if os.name == 'nt' else 'clear')
 
@@ -202,6 +210,7 @@ def clearScreen():
 with open(MAZE_NAME, "r") as mazeFile:
     maze = [list(row.strip()) for row in mazeFile if '0' in row or '#' in row]
 goalPos = getGoalPos() # Must be run instantly as the maze will change as the game is played
+totalAvaSquares = getTotalAvaSquares()
 
 
 match ALGORITHM.lower():
@@ -225,5 +234,6 @@ while True:
     displayMaze(player)
 
     if goalState:
+        print(f'\nExploration Efficiency: {len(player.exploredSquares)-1}/{totalAvaSquares} ({round(((len(player.exploredSquares)-1)/totalAvaSquares*100), 1)}%)')
         print()
         break
