@@ -7,3 +7,4 @@ A0000#
 
 This maze is very basic, with two equally efficient solutions, and one dead end.
 All algorithms should be able to find an optimal solution relativly quickly
+A* should solve perfectly
