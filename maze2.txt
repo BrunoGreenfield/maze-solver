@@ -10,4 +10,4 @@
 #####A####
 
 This maze has two solutions, with one being more optimal than the other
- - A* should perform almost perfectly
+ - A* and GBFS should perform almost perfectly
