@@ -96,8 +96,8 @@ class Player:
                 self.frontier.append(square)
                 self.addKnownSquare(square)
 
-        # if not self.frontier:
-        #     return True
+        if not self.frontier:
+            return True
 
         maze[self.currentSquare[0]][self.currentSquare[1]] = '0'
         return False
@@ -241,7 +241,11 @@ while True:
     displayMaze(player)
 
     if goalState:
-        print(f'\nExploration Efficiency: {len(player.exploredSquares)-1}/{totalAvaSquares} ({round(((len(player.exploredSquares)-1)/totalAvaSquares*100), 1)}%)')
+        lenExploredSquares = len(player.exploredSquares)
+        if lenExploredSquares != totalAvaSquares:
+            print(f'\nExploration Efficiency: {lenExploredSquares}/{totalAvaSquares} ({round(((lenExploredSquares)/totalAvaSquares*100), 1)}%)')
+        else:
+            print('\nNo solution!')
         break
 
 print()
