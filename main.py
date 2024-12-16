@@ -108,6 +108,9 @@ class Player:
 
         self.exploredSquares.append(self.currentSquare)
 
+    def showPath(self):
+        displayMaze(self, goodSquares=self.exploredSquares)
+
 # Breadth-first search
 class BFS(Player):
     def __init__(self):
@@ -174,7 +177,9 @@ class A_Star(Player):
         return self.checkGoalState()
 
 
-def displayMaze(player):
+def displayMaze(player, goodSquares = []):
+    if goodSquares:
+        pass
     clearScreen()
     for row in maze:
         for char in row:
@@ -182,7 +187,7 @@ def displayMaze(player):
                 case '#':
                     print("\033[31m#\033[0m", end=' ') # '#'
                 case '0':
-                    print("\033[32m0\033[0m", end=' ') # '0'
+                    print("0", end=' ') # '0'
                 case 'A':
                     print("\033[33mA\033[0m", end=' ') # 'A'
                 case 'Z':
@@ -241,6 +246,8 @@ while True:
     displayMaze(player)
 
     if goalState:
+        player.showPath()
+
         lenExploredSquares = len(player.exploredSquares)
         if lenExploredSquares != totalAvaSquares:
             print(f'\nExploration Efficiency: {lenExploredSquares}/{totalAvaSquares} ({round(((lenExploredSquares)/totalAvaSquares*100), 1)}%)')
