@@ -112,7 +112,6 @@ class Player:
     # Only to be called at the end of solving
     def showPath(self):
         localMaze = maze
-        endPath = []
 
         for square in self.exploredSquares:
             localMaze[square[0]][square[1]] = '?'
@@ -142,17 +141,28 @@ class DFS(Player):
     def move(self):
         if self.addToFrontier(): return True
 
-        adjacent = False
+        squareInSeq = False
         for square in self.getAvailableSquares(self.frontier[-1]):
             if square == self.currentSquare:
                 self.paths[0].append(self.frontier[-1])
-                adjacent = True
-                continue
-        if not adjacent:
-            for square in self.exploredSquares:
-                for adjSquare in self.getAvailableSquares(square):
-                    if square in self.exploredSquares:
-                        pass
+                squareInSeq = True
+                break
+
+            rowTracker = 0
+            for squares in self.paths:
+                if square in squares:
+                    currentCorrectPath = self.paths[rowTracker]
+                    self.paths.remove(currentCorrectPath)
+                    currentCorrectPath = currentCorrectPath[:currentCorrectPath.index(square)+1]
+                    self.paths.insert(0, currentCorrectPath)
+                    self.paths[0].append(self.frontier[-1])
+                    squareInSeq = True
+                    break
+                rowTracker += 1
+
+        if not squareInSeq:
+            self.paths.insert(0, [self.frontier[-1]])
+
         self.currentSquare = self.frontier[-1]
 
         self.cleanUp()
@@ -275,7 +285,7 @@ while True:
         player.showPath()
 
         lenExploredSquares = len(player.exploredSquares)
-        if lenExploredSquares != totalAvaSquares:
+        if player.checkGoalState:
             print(f'\nExploration Efficiency: {lenExploredSquares}/{totalAvaSquares} ({round(((lenExploredSquares)/totalAvaSquares*100), 1)}%)')
         else:
             print('\nNo solution!')
