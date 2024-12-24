@@ -27,7 +27,7 @@ class Player:
         self.knownSquares = [[]] # format => [[squareCoords1], [squareCoords2]], with each index being the moves it took to get to the desired square
         self.exploredSquares.append(self.currentSquare)
         self.knownSquares[0].append(self.currentSquare)
-        self.paths = []
+        self.paths = [] # A list of lists, containing the different sequences of moves that we have made. The sequence at index 0 is the current/best one.
         self.paths.append([self.currentSquare])
 
     def currentPos(self):
@@ -92,6 +92,7 @@ class Player:
     def addToFrontier(self):
         avaSquares = self.getAvailableSquares(self.currentPos())
         shuffle(avaSquares)
+
         for square in avaSquares:
             if square not in self.exploredSquares and square not in self.frontier:
                 self.frontier.append(square)
@@ -101,6 +102,14 @@ class Player:
             return True
 
         maze[self.currentSquare[0]][self.currentSquare[1]] = '0'
+
+        return self.goalStateReachable()
+
+    def goalStateReachable(self):
+        if goalPos in self.frontier:
+            self.currentSquare = goalPos
+            self.cleanUp()
+            return True
         return False
 
     def addToPaths(self, squareMovingTo):
@@ -110,10 +119,10 @@ class Player:
             for squares in self.paths: # Iterate through the sequences in self.paths
                 if square in squares:
                     currentCorrectPath = self.paths[sequenceTrack]
-                    currentCorrectPath = currentCorrectPath[:currentCorrectPath.index(square)+1]
-                    self.paths.insert(0, currentCorrectPath)
+                    currentCorrectPath = currentCorrectPath[:currentCorrectPath.index(square)+1] # We only want the sequence up to where the square is
+                    self.paths.insert(0, currentCorrectPath) # Insert at 0, as it is the best
                     self.paths[0].append(squareMovingTo)
-                    break
+                    break # Our work here is done...
 
                 sequenceTrack += 1
 
