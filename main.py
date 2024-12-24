@@ -185,7 +185,7 @@ class GBFS(Player):
         if self.addToFrontier(): return True
 
         bestSquare = []
-        lowestSquareCost = 1_000_000_000
+        lowestSquareCost = float('inf')
         for square in self.frontier:
             cost = self.heuristic(square)
             if cost <= lowestSquareCost:
@@ -206,7 +206,7 @@ class A_Star(Player):
         if self.addToFrontier(): return True
 
         bestSquare = []
-        lowestSquareCost = 1_000_000_000
+        lowestSquareCost = float('inf')
         for square in self.frontier:
             cost = self.squareCost(square)
             if cost <= lowestSquareCost:
