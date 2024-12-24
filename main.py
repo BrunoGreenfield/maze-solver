@@ -27,8 +27,8 @@ class Player:
         self.knownSquares = [[]] # format => [[squareCoords1], [squareCoords2]], with each index being the moves it took to get to the desired square
         self.exploredSquares.append(self.currentSquare)
         self.knownSquares[0].append(self.currentSquare)
-        self.paths = [[]]
-        self.endPath = []
+        self.paths = []
+        self.paths.append([self.currentSquare])
 
     def currentPos(self):
         playerIndex = ''
@@ -103,6 +103,20 @@ class Player:
         maze[self.currentSquare[0]][self.currentSquare[1]] = '0'
         return False
 
+    def addToPaths(self, squareMovingTo):
+        for square in self.getAvailableSquares(squareMovingTo): # Iterate through the squares next to the square we are about to move to
+            sequenceTrack = 0 # Used to track which sequence we're on, allowing us to use this as an index
+
+            for squares in self.paths: # Iterate through the sequences in self.paths
+                if square in squares:
+                    currentCorrectPath = self.paths[sequenceTrack]
+                    currentCorrectPath = currentCorrectPath[:currentCorrectPath.index(square)+1]
+                    self.paths.insert(0, currentCorrectPath)
+                    self.paths[0].append(squareMovingTo)
+                    break
+
+                sequenceTrack += 1
+
     def cleanUp(self):
         self.frontier.remove(self.currentSquare)
         maze[self.currentSquare[0]][self.currentSquare[1]] = 'A'
@@ -112,12 +126,16 @@ class Player:
     # Only to be called at the end of solving
     def showPath(self):
         localMaze = maze
+        isGoalState = self.checkGoalState()
 
         for square in self.exploredSquares:
             localMaze[square[0]][square[1]] = '?'
-        for square in self.paths[0]:
-            localMaze[square[0]][square[1]] = '!'
-        localMaze[goalPos[0]][goalPos[1]] = 'A'
+        if isGoalState:
+            for square in self.paths[0]:
+                localMaze[square[0]][square[1]] = '!'
+            localMaze[goalPos[0]][goalPos[1]] = 'A'
+        else:
+            localMaze[self.paths[0][-1][0]][self.paths[0][-1][1]] = 'A' # If no solution, leave 'A' at the last square it was at
 
         displayMaze(self, localMaze)
 
@@ -128,6 +146,8 @@ class BFS(Player):
 
     def move(self):
         if self.addToFrontier(): return True
+
+        self.addToPaths(self.frontier[0])
         self.currentSquare = self.frontier[0]
 
         self.cleanUp()
@@ -141,28 +161,7 @@ class DFS(Player):
     def move(self):
         if self.addToFrontier(): return True
 
-        squareInSeq = False
-        for square in self.getAvailableSquares(self.frontier[-1]):
-            if square == self.currentSquare:
-                self.paths[0].append(self.frontier[-1])
-                squareInSeq = True
-                break
-
-            rowTracker = 0
-            for squares in self.paths:
-                if square in squares:
-                    currentCorrectPath = self.paths[rowTracker]
-                    self.paths.remove(currentCorrectPath)
-                    currentCorrectPath = currentCorrectPath[:currentCorrectPath.index(square)+1]
-                    self.paths.insert(0, currentCorrectPath)
-                    self.paths[0].append(self.frontier[-1])
-                    squareInSeq = True
-                    break
-                rowTracker += 1
-
-        if not squareInSeq:
-            self.paths.insert(0, [self.frontier[-1]])
-
+        self.addToPaths(self.frontier[-1])
         self.currentSquare = self.frontier[-1]
 
         self.cleanUp()
@@ -184,6 +183,7 @@ class GBFS(Player):
                 bestSquare = square
                 lowestSquareCost = cost
 
+        self.addToPaths(bestSquare)
         self.currentSquare = bestSquare
 
         self.cleanUp()
@@ -204,6 +204,7 @@ class A_Star(Player):
                 bestSquare = square
                 lowestSquareCost = cost
 
+        self.addToPaths(bestSquare)
         self.currentSquare = bestSquare
 
         self.cleanUp()
@@ -284,7 +285,7 @@ while True:
     if goalState:
         player.showPath()
 
-        lenExploredSquares = len(player.exploredSquares)
+        lenExploredSquares = len(player.exploredSquares)-1
         if player.checkGoalState:
             print(f'\nExploration Efficiency: {lenExploredSquares}/{totalAvaSquares} ({round(((lenExploredSquares)/totalAvaSquares*100), 1)}%)')
         else:
