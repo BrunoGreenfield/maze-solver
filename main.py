@@ -3,13 +3,13 @@ import os
 from time import sleep
 from random import shuffle
 
-timeDelay = 1
+timeDelay = None
 
 # Mazename flag
 parser = argparse.ArgumentParser()
 parser.add_argument('-n', '--mazename', help='The path to the maze txt file', required=True)
 parser.add_argument('-a', '--algorithm', help='The search algorithm you wish to use: bfs, dfs, gbfs, a*', required=True)
-parser.add_argument('-d', '--delay', help='Time delay per-move in seconds (default 1)')
+parser.add_argument('-d', '--delay', help='Time delay per-move in seconds -> if you do not wish to use a delay, do not use this flag')
 
 args = parser.parse_args()
 
@@ -21,7 +21,6 @@ if args.delay != None: timeDelay = float(args.delay)
 class Player:
     def __init__(self):
         self.frontier = []
-        self.goodChars = ['0', 'Z', 'A'] # This is a list of characters the player can move too
         self.currentSquare = self.currentPos()
         self.exploredSquares = [] # All the explored squares
         self.knownSquares = [[]] # format => [[squareCoords1], [squareCoords2]], with each index being the moves it took to get to the desired square
@@ -36,6 +35,7 @@ class Player:
             if 'A' not in row:
                 continue
             playerIndex = [maze.index(row), row.index('A')]
+            break
 
         return playerIndex
 
@@ -61,15 +61,16 @@ class Player:
         return self.heuristic(givenSquare)+movesToSquare
 
     def getAvailableSquares(self, square):
-        current_row, current_col = square
+        goodChars = ['0', 'Z', 'A']
+        currentRow, currentCol = square
         directions = [[1, 0], [-1, 0], [0, 1], [0, -1]]
         goodSquares = []
 
         for row, column in directions:
-            newRow, newCol = current_row + row, current_col + column
+            newRow, newCol = currentRow + row, currentCol + column
 
             if 0 <= newRow < len(maze) and 0 <= newCol < len(maze[newRow]):
-                if maze[newRow][newCol] in self.goodChars:
+                if maze[newRow][newCol] in goodChars:
                     goodSquares.append([newRow, newCol])
 
         return goodSquares
@@ -286,10 +287,11 @@ match ALGORITHM.lower():
         displayMaze(player, maze)
 
 while True:
-    sleep(timeDelay)
-
     goalState = player.move()
-    displayMaze(player, maze)
+
+    if timeDelay:
+        sleep(timeDelay)
+        displayMaze(player, maze)
 
     if goalState:
         player.showPath()
