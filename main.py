@@ -32,9 +32,9 @@ class Player:
     def currentPos(self):
         playerIndex = ''
         for row in maze:
-            if 'A' not in row:
+            if 'P' not in row:
                 continue
-            playerIndex = [maze.index(row), row.index('A')]
+            playerIndex = [maze.index(row), row.index('P')]
             break
 
         return playerIndex
@@ -61,7 +61,7 @@ class Player:
         return self.heuristic(givenSquare)+movesToSquare
 
     def getAvailableSquares(self, square):
-        goodChars = ['0', 'Z', 'A']
+        goodChars = ['0', 'Z', 'P', 'A']
         currentRow, currentCol = square
         directions = [[1, 0], [-1, 0], [0, 1], [0, -1]]
         goodSquares = []
@@ -129,7 +129,7 @@ class Player:
 
     def cleanUp(self):
         self.frontier.remove(self.currentSquare)
-        maze[self.currentSquare[0]][self.currentSquare[1]] = 'A'
+        maze[self.currentSquare[0]][self.currentSquare[1]] = 'P'
 
         self.exploredSquares.append(self.currentSquare)
 
@@ -143,9 +143,11 @@ class Player:
         if isGoalState:
             for square in self.paths[0]:
                 localMaze[square[0]][square[1]] = '!'
-            localMaze[goalPos[0]][goalPos[1]] = 'A'
+            localMaze[goalPos[0]][goalPos[1]] = 'P'
         else:
-            localMaze[self.paths[0][-1][0]][self.paths[0][-1][1]] = 'A' # If no solution, leave 'A' at the last square it was at
+            localMaze[self.paths[0][-1][0]][self.paths[0][-1][1]] = 'P' # If no solution, leave 'P' at the last square it was at
+
+        localMaze[startPos[0]][startPos[1]] = 'A'
 
         displayMaze(self, localMaze)
 
@@ -230,8 +232,10 @@ def displayMaze(player, mazeArr):
                     print("\033[31m#\033[0m", end=' ') # '#' -> red
                 case '0':
                     print("0", end=' ') # '0' -> white/normal terminal colour
+                case 'P':
+                    print("\033[35mP\033[0m", end=' ') # 'P' -> purple
                 case 'A':
-                    print("\033[35mA\033[0m", end=' ') # 'A' -> purple
+                    print("\033[36mA\033[0m", end=' ') # 'A' -> turquoise
                 case 'Z':
                     print("\033[34mZ\033[0m", end=' ') # 'Z' -> blue
                 case '?':
@@ -247,11 +251,11 @@ def displayMaze(player, mazeArr):
     print('Goal State:', player.checkGoalState())
     print('Squares to move too:', player.getAvailableSquares(player.currentPos()))
 
-def getGoalPos():
+def checkMazeContains(char):
     for row in maze:
-        if 'Z' not in row:
+        if char not in row:
             continue
-        return [maze.index(row), row.index('Z')]
+        return [maze.index(row), row.index(char)]
 
 def getTotalAvaSquares():
     totalAvaSquares = 0
@@ -268,26 +272,35 @@ def clearScreen():
 # Opening the maze creating a lists of lists to represent
 with open(MAZE_NAME, "r") as mazeFile:
     maze = [list(row.strip()) for row in mazeFile if '0' in row or '#' in row]
-goalPos = getGoalPos() # Must be run instantly as the maze will change as the game is played
+startPos = checkMazeContains('A')
+maze[startPos[0]][startPos[1]] = 'P'
+goalPos = checkMazeContains('Z')
 totalAvaSquares = getTotalAvaSquares()
 
 
 match ALGORITHM.lower():
     case 'bfs':
         player = BFS()
-        displayMaze(player, maze)
     case 'dfs':
         player = DFS()
-        displayMaze(player, maze)
     case 'gbfs':
         player = GBFS()
-        displayMaze(player, maze)
     case 'a*':
         player = A_Star()
-        displayMaze(player, maze)
+    case _:
+        exit('\n**UNKNOWN ALGORITHM**\n')
+
+if timeDelay:
+    displayMaze(player, maze)
+
+moved = False
 
 while True:
     goalState = player.move()
+
+    if not moved:
+        maze[startPos[0]][startPos[1]] = 'A'
+        moved = True
 
     if timeDelay:
         sleep(timeDelay)
